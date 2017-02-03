@@ -21,7 +21,7 @@ connection.connect(function(err){
 });
 
 //Welcoming user to our bamazon application
-console.log("Welcome to Bamazon!!")
+console.log("Welcome to Bamazon!!");
 
 //Creating the table header row
 var table = new Table({
@@ -58,7 +58,7 @@ connection.query("SELECT * FROM products", function(err,res){
 		productID = productID - 1;
 		//Printing the price of the item selected
 		var price = res[productID].price;
-		console.log("Item Price:" + price)
+		console.log("Item Price:" + price);
 		
 		
 		//qty avalible
@@ -69,21 +69,19 @@ connection.query("SELECT * FROM products", function(err,res){
 		if(user.buyUnits>qtyAvalible){
 			console.log("Insufficient quantity!");
 		}else{
-			console.log("Qty is avalible, your order has been placed");
+			console.log("Qty is avalible, your order has been placed.");
 			//Query to update the sql db with the new number of products after being sold
 			connection.query("UPDATE products SET ? WHERE ?", [{
 			  stock_quantity: qtyAvalible - user.buyUnits
 			}, {
 			  item_id: user.productID
-			}], function(err, res) {
-				//Here we are calculating the final price as well as setting the value to two decimal
-				var finalPrice = user.buyUnits*price
-				console.log("The total cost will be $" + finalPrice.toFixed(2));
-			});
+			}], function(err, res) {});
 			//this will exit the user from the application
-			process.exit();
+			//Here we are calculating the final price as well as setting the value to two decimal
+			var finalPrice = user.buyUnits * price;
+			console.log("The total cost will be $" + finalPrice.toFixed(2));
 		}
-
+		process.exit();
 	});
 });
 
