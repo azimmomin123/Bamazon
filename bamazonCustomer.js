@@ -31,15 +31,8 @@ var table = new Table({
 
 connection.query("SELECT * FROM products", function(err,res){
 	if (err) throw err;
-	//For loop to display all items in a table format
-	for (var i = 0; i < res.length; i++){
-		// table is an Array, and we are pushing each row on to the table
-		table.push(
-		    [res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]
-		);
-	}
-	//Displaying Table in console
-	console.log(table.toString());
+	//Running the update table to see what items are for sale
+	updateTable(res);
 
 	//Creating a prompt with a series of questions for the user
 	inquirer.prompt([
@@ -58,48 +51,55 @@ connection.query("SELECT * FROM products", function(err,res){
 	]).then(function(user){
 		console.log("User Buy Input: " + user.buyUnits);
 		console.log("User product ID Input: " + user.productID);
+
 		
 		//Assign correct array index
 		var productID = parseInt(user.productID);
 		productID = productID - 1;
+		//Printing the price of the item selected
+		var price = res[productID].price;
+		console.log("Item Price:" + price)
 		
-		//console.log("User product ID plus 1: " + productID);
 		
 		//qty avalible
 		var qtyAvalible = res[productID].stock_quantity;
 		console.log("DB Stock QTY: " + qtyAvalible);
 
-		
-
-		//console.log("typeof "+ typeof productID);
-		//console.log("prodcutID "+  productID);
-
 		//Checking to make sure there is enough quantity to place the order
 		if(user.buyUnits>qtyAvalible){
-			console.log("Insufficient quantity!")
+			console.log("Insufficient quantity!");
 		}else{
-			console.log("Qty is avalible")
+			console.log("Qty is avalible, your order has been placed");
+			//Query to update the sql db with the new number of products after being sold
+			connection.query("UPDATE products SET ? WHERE ?", [{
+			  stock_quantity: qtyAvalible - user.buyUnits
+			}, {
+			  item_id: user.productID
+			}], function(err, res) {
+				//Here we are calculating the final price as well as setting the value to two decimal
+				var finalPrice = user.buyUnits*price
+				console.log("The total cost will be $" + finalPrice.toFixed(2));
+			});
+			//this will exit the user from the application
+			process.exit();
 		}
-
-		// connection.query("SELECT stock_quantity FROM products WHERE ?", {
-		// 		item_id: user.productID
-		// 	}, function(err, res) {
-		// 	  if (err) throw err;
-		// 	  console.log("checkQty" + res);
-		// 	});
 
 	});
 });
 
-//Function to check if there is enough QTY avalible
-var checkQty = function(){
-	connection.query("SELECT stock_quantity FROM products WHERE ?", {
-		item_id: user.productID
-	}, function(err, res) {
-	  if (err) throw err;
-	  console.log("checkQty" + res);
-	});
-};
+//This function will update the table display
+function updateTable(data){
+	//For loop to display all items in a table format
+	for (var i = 0; i < data.length; i++){
+		// table is an Array, and we are pushing each row on to the table
+		table.push(
+		    [data[i].item_id, data[i].product_name, data[i].department_name, data[i].price, data[i].stock_quantity]
+		);
+	}
+	//Printing the table to the console	
+	console.log(table.toString());
+}
+
 
 
 
