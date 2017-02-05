@@ -63,7 +63,7 @@ connection.query("SELECT * FROM products", function(err,res){
 		
 		//qty avalible
 		var qtyAvalible = res[productID].stock_quantity;
-		console.log("DB Stock QTY: " + qtyAvalible);
+		console.log("DB Stock QTY before order: " + qtyAvalible);
 
 		//Checking to make sure there is enough quantity to place the order
 		if(user.buyUnits>qtyAvalible){
@@ -81,7 +81,7 @@ connection.query("SELECT * FROM products", function(err,res){
 			var finalPrice = user.buyUnits * price;
 			console.log("The total cost will be $" + finalPrice.toFixed(2));
 		}
-		process.exit();
+		//process.exit();
 	});
 });
 
